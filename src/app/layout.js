@@ -42,11 +42,27 @@ export async function getAllProducts() {
 }
 
 export default async function RootLayout({ children }) {
-  const products = await getAllProducts();
-  console.log(products);
+  const {
+    body: {
+      data: { products },
+    },
+  } = await getAllProducts();
+
   return (
     <html lang='en'>
-      <body className={inter.className}>{children}</body>
+      <body className={inter.className}>
+        {children}
+        {products.edges.map(({ node }) => (
+          <div key={node.id}>
+            <h2>{node.title}</h2>
+            <p>{node.description}</p>
+            <img src={node.images?.edges[0]?.node?.originalSrc} alt={node.images?.edges[0]?.node.altText} />
+            <p>
+              {node.priceRange.minVariantPrice.amount} {node.priceRange.minVariantPrice.currencyCode}
+            </p>
+          </div>
+        ))}
+      </body>
     </html>
   );
 }
