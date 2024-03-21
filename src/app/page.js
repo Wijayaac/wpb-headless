@@ -1,5 +1,6 @@
 import { shopifyFetch } from "@/utils/shopify";
 import Image from "next/image";
+import Link from "next/link";
 
 // TODO refactor to query utils
 export async function getAllProducts() {
@@ -82,14 +83,14 @@ export default async function Home() {
       },
     },
   } = await getHomeCollection();
-  console.log(homeCollection);
   return (
     <main className='flex min-h-screen flex-col items-center justify-between px-8'>
       <div className='grid md:grid-cols-5 md:grid-rows-4 gap-4 md:my-10'>
         {/* TODO: sale product collection refactor */}
         {homeCollection &&
           homeCollection.edges.map(({ node }, idx) => (
-            <div
+            <Link
+              href={`/product/${node.handle}`}
               key={node.id}
               className={`relative group overflow-hidden rounded-xl ${idx === 0 ? "md:col-span-3 md:row-span-4" : "md:col-span-2 md:row-span-2 md:col-start-4"} ${
                 idx === homeCollection.length - 1 ? "md:row-start-3" : ""
@@ -103,14 +104,14 @@ export default async function Home() {
                   </p>
                 </div>
               </div>
-            </div>
+            </Link>
           ))}
       </div>
       {/* TODO: refactor to component */}
       <div className='flex flex-wrap flex md:my-20 my-10'>
         {products &&
           products.edges.map(({ node }) => (
-            <div key={node.id} className='md:basis-1/3 my-2 px-2'>
+            <Link href={`/product/${node.handle}`} key={node.id} className='md:basis-1/3 my-2 px-2'>
               <div className='relative group rounded-xl overflow-hidden border border-black hover:border-blue-400'>
                 <Image
                   className='w-full h-full relative object-cover transition duration-300 ease-in-out group-hover:scale-105 group'
@@ -128,7 +129,7 @@ export default async function Home() {
                   </div>
                 </div>
               </div>
-            </div>
+            </Link>
           ))}
       </div>
     </main>
