@@ -1,8 +1,8 @@
-import { shopifyFetch } from "@/utils/shopify";
+import { shopifyFetch } from "@/lib/shopify";
 import Image from "next/image";
 import Link from "next/link";
 
-// TODO refactor to query utils
+// TODO refactor to query sutils
 export async function getAllProducts() {
   return shopifyFetch({
     query: `{
@@ -39,7 +39,7 @@ export async function getAllProducts() {
 export async function getHomeCollection() {
   return shopifyFetch({
     query: `{
-			collectionByHandle(handle: "sale") {
+			collectionByHandle(handle: "selected-collection") { 
 				products(first: 3) {
 					edges {
 						node {
@@ -95,7 +95,11 @@ export default async function Home() {
               className={`relative group overflow-hidden rounded-xl ${idx === 0 ? "md:col-span-3 md:row-span-4" : "md:col-span-2 md:row-span-2 md:col-start-4"} ${
                 idx === homeCollection.length - 1 ? "md:row-start-3" : ""
               } transition duration-300 ease-in-out border dark:border-black hover:border-blue-300`}>
-              <Image className='relative h-full w-full object-cover transition duration-300 ease-in-out group-hover:scale-105' src={node.images?.edges[0]?.node?.originalSrc} alt={node.images?.edges[0]?.node.altText} width={1080} height={1080} />
+              {node.images.edges[0] ? (
+                <Image className='relative h-full w-full object-cover transition duration-300 ease-in-out group-hover:scale-105' src={node.images?.edges[0]?.node?.originalSrc} alt={node.images?.edges[0]?.node.altText} width={1080} height={1080} />
+              ) : (
+                <Image src='/placeholder.png' alt='placeholder' width={600} height={600} />
+              )}
               <div className={`absolute ml-2 p-2 bottom-0 left-0 dark:bg-black rounded-full ${idx === 0 ? "md:mb-[50%]" : "md:mb-10"} mb-4`}>
                 <div className='flex md:gap-2 items-center'>
                   <p className='text-xs md:text-sm pl-2'>{node.title}</p>
@@ -113,13 +117,17 @@ export default async function Home() {
           products.edges.map(({ node }) => (
             <Link href={`/product/${node.handle}`} key={node.id} className='md:basis-1/3 my-2 px-2'>
               <div className='relative group rounded-xl overflow-hidden border border-black hover:border-blue-400'>
-                <Image
-                  className='w-full h-full relative object-cover transition duration-300 ease-in-out group-hover:scale-105 group'
-                  src={node.images?.edges[0]?.node?.originalSrc}
-                  alt={node.images?.edges[0]?.node.altText}
-                  width={480}
-                  height={480}
-                />
+                {node.images.edges[0] ? (
+                  <Image
+                    className='w-full h-full relative object-cover transition duration-300 ease-in-out group-hover:scale-105 group'
+                    src={node.images?.edges[0]?.node?.originalSrc}
+                    alt={node.images?.edges[0]?.node.altText}
+                    width={480}
+                    height={480}
+                  />
+                ) : (
+                  <Image src='/placeholder.png' alt='placeholder' width={480} height={480} />
+                )}
                 <div className='absolute mb-4 mx-2 bottom-0 left-0 dark:bg-black rounded-full'>
                   <div className='flex items-center gap-2 p-2'>
                     <p className='text-xs md:text-sm pl-2'>{node.title}</p>

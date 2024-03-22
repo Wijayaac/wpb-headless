@@ -1,5 +1,6 @@
+import { AddToCart } from "@/components/cart/add-to-cart";
 import VariantButton from "@/components/ui/variant-button";
-import { shopifyFetch } from "@/utils/shopify";
+import { shopifyFetch } from "@/lib/shopify";
 import Image from "next/image";
 
 export async function getProduct(handle) {
@@ -85,7 +86,7 @@ export default async function Page({ params }) {
                 </div>
               )}
               {/* TODO: add to cart function */}
-              <button className='bg-blue-500 p-2 rounded-full'>Add to cart</button>
+              <AddToCart variants={product.variants} availableForSale={false} />
               <p className='mt-8'>{product.description}</p>
             </div>
           </div>
