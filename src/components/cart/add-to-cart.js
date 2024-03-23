@@ -51,10 +51,10 @@ function SubmitButton({ availableForSale, selectedVariantId }) {
 export function AddToCart({ variants, availableForSale }) {
   const [message, formAction] = useFormState(addItem, null);
   const searchParams = useSearchParams();
-  console.log(variants);
-  const defaultVariantId = variants.length === 1 ? variants[0]?.id : undefined;
-  const variant = variants.find((variant) => variant.selectedOptions.every((option) => option.value === searchParams.get(option.name.toLowerCase())));
+  const defaultVariantId = variants.length === 1 ? variants[0].node?.id : undefined;
+  const variant = variants.find((variant) => variant.node.selectedOptions.every((option) => option.value === searchParams.get(option.name.toLowerCase())));
   const selectedVariantId = variant?.id || defaultVariantId;
+
   const actionWithVariant = formAction.bind(null, selectedVariantId);
 
   return (

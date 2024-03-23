@@ -30,6 +30,15 @@ export async function getProduct(handle) {
 						node {
 							title
 							id
+							availableForSale
+							selectedOptions {
+								name
+								value
+							}
+							price {
+								amount
+								currencyCode
+							}
 						}
 					}
 				}
@@ -44,12 +53,6 @@ export default async function Page({ params }) {
       data: { product },
     },
   } = await getProduct(params.handle);
-
-  function handleVariantChange(id) {
-    console.log("here");
-    // const variant = product.variants.edges.find((v) => v.node.id === id);
-    // console.log(variant);
-  }
 
   return (
     <main className='flex min-h-screen flex-col items-center justify-between md:px-8 px-4'>
@@ -86,7 +89,7 @@ export default async function Page({ params }) {
                 </div>
               )}
               {/* TODO: add to cart function */}
-              <AddToCart variants={product.variants} availableForSale={false} />
+              <AddToCart variants={product.variants?.edges} availableForSale={true} />
               <p className='mt-8'>{product.description}</p>
             </div>
           </div>
