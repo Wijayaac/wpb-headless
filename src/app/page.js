@@ -116,7 +116,7 @@ export default async function Home() {
         {products &&
           products.edges.map(({ node }) => (
             <Link href={`/product/${node.handle}`} key={node.id} className='md:basis-1/3 my-2 px-2'>
-              <div className='relative group rounded-xl overflow-hidden border border-black hover:border-blue-400'>
+              <div className='relative h-full group rounded-xl overflow-hidden border border-black hover:border-blue-400'>
                 {node.images.edges[0] ? (
                   <Image
                     className='w-full h-full relative object-cover transition duration-300 ease-in-out group-hover:scale-105 group'
@@ -126,7 +126,7 @@ export default async function Home() {
                     height={480}
                   />
                 ) : (
-                  <Image src='/placeholder.png' alt='placeholder' width={480} height={480} />
+                  <Image className='relative h-full w-full object-cover transition duration-300 ease-in-out group-hover:scale-105' src='/placeholder.png' alt='placeholder' width={480} height={480} />
                 )}
                 <div className='absolute mb-4 mx-2 bottom-0 left-0 dark:bg-black rounded-full'>
                   <div className='flex items-center gap-2 p-2'>

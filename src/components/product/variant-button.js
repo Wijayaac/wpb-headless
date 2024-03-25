@@ -12,7 +12,8 @@ function VariantButton({ variant, children }) {
   return (
     <button
       onClick={() => {
-        router.push(`?variant=${variant.node.title}`);
+        const lowerCaseVariant = variant.node.title.toLowerCase();
+        router.push(`?variant=${lowerCaseVariant}`);
       }}
       // TODO: install clsx library for dynamic class names
       className={`rounded-full border border-black hover:border-blue-400 p-2 bg-gray-800 ${isSelected ? "border-blue-400" : ""}`}>
