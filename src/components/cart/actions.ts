@@ -1,11 +1,11 @@
 "use server";
 
-import { TAGS } from "lib/constants";
-import { addToCart, createCart, getCart, removeFromCart, updateCart } from "lib/shopify";
+import { TAGS } from "../../lib/constants";
+import { addToCart, createCart, getCart, removeFromCart, updateCart } from "../../lib/shopify";
 import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
 
-export async function addItem(prevState, selectedVariantId) {
+export async function addItem(prevState: any, selectedVariantId: string | undefined) {
   let cartId = cookies().get("cartId")?.value;
   let cart;
 
@@ -31,7 +31,7 @@ export async function addItem(prevState, selectedVariantId) {
   }
 }
 
-export async function removeItem(prevState, lineId) {
+export async function removeItem(prevState: any, lineId: string) {
   const cartId = cookies().get("cartId")?.value;
 
   if (!cartId) {
@@ -46,7 +46,14 @@ export async function removeItem(prevState, lineId) {
   }
 }
 
-export async function updateItemQuantity(prevState, payload) {
+export async function updateItemQuantity(
+  prevState: any,
+  payload: {
+    lineId: string;
+    variantId: string;
+    quantity: number;
+  }
+) {
   const cartId = cookies().get("cartId")?.value;
 
   if (!cartId) {
