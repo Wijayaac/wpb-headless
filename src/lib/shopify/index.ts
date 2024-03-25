@@ -281,10 +281,12 @@ export async function getCollectionProducts({ collection, reverse, sortKey }: { 
 }
 
 export async function getCollections(): Promise<Collection[]> {
+  console.log("here");
   const res = await shopifyFetch<ShopifyCollectionsOperation>({
     query: getCollectionsQuery,
     tags: [TAGS.collections],
   });
+
   const shopifyCollections = removeEdgesAndNodes(res.body?.data?.collections);
   const collections = [
     {
