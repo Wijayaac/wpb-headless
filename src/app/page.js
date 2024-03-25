@@ -1,145 +1,51 @@
-import { shopifyFetch } from "@/lib/shopify";
-import Image from "next/image";
+import { Carousel } from "@/components/carousel";
+import { GridTileImage } from "@/components/grid/tile";
+import { getCollectionProducts } from "@/lib/shopify";
 import Link from "next/link";
+import { Suspense } from "react";
 
-// TODO refactor to query sutils
-export async function getAllProducts() {
-  return shopifyFetch({
-    query: `{
-			products(first: 12) {
-				edges {
-					node {
-						id
-						title
-						handle
-						description
-						images(first: 1) {
-							edges {
-								node {
-									originalSrc
-									altText
-								}
-							}
-						}
-						priceRange {
-							minVariantPrice {
-								amount
-								currencyCode
-							}
-						}
-					}
-				}
-			}
-		}
-		`,
-  });
-}
-
-// TODO: refactor to query utils
-export async function getHomeCollection() {
-  return shopifyFetch({
-    query: `{
-			collectionByHandle(handle: "selected-collection") { 
-				products(first: 3) {
-					edges {
-						node {
-							id
-							title
-							handle
-							images(first: 1) {
-								edges {
-									node {
-										originalSrc
-										altText
-									}
-								}
-							}
-							priceRange {
-								minVariantPrice {
-									amount
-									currencyCode
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-		`,
-  });
+function HomeCollection({ item, size, priority }) {
+  return (
+    <div className={size === "full" ? "md:col-span-4 md:row-span-2" : "md:col-span-2 md:row-span-1"}>
+      <Link className='relative block aspect-square h-full w-full' href={`/product/${item.handle}`}>
+        <GridTileImage
+          src={item.featuredImage.url}
+          fill
+          alt={item.title}
+          priority={priority}
+          sizes={size === "full" ? "(min-width: 768px) 66vw, 100vw" : "(min-width: 768px) 33vw, 100vw"}
+          label={{
+            position: size === "full" ? "center" : "top",
+            title: item.title,
+            amount: item.priceRange.maxVariantPrice.amount,
+            currency: item.priceRange.maxVariantPrice.currencyCode,
+          }}
+        />
+      </Link>
+    </div>
+  );
 }
 
 export default async function Home() {
-  const {
-    body: {
-      data: { products },
-    },
-  } = await getAllProducts();
+  const homepageItems = await getCollectionProducts({ collection: "selected-collection" });
 
-  const {
-    body: {
-      data: {
-        collectionByHandle: { products: homeCollection },
-      },
-    },
-  } = await getHomeCollection();
+  if (!homepageItems[0] || !homepageItems[1] || !homepageItems[2]) {
+    return null;
+  }
+
+  const [firstItem, secondItem, thirdItem] = homepageItems;
+
   return (
-    <main className='flex min-h-screen flex-col items-center justify-between px-8'>
-      <div className='grid md:grid-cols-5 md:grid-rows-4 gap-4 md:my-10'>
+    <>
+      <section className='mx-auto grid max-w-screen-2xl gap-4 px-4 pb-4 md:grid-cols-6 md:grid-rows-2'>
         {/* TODO: sale product collection refactor */}
-        {homeCollection &&
-          homeCollection.edges.map(({ node }, idx) => (
-            <Link
-              href={`/product/${node.handle}`}
-              key={node.id}
-              className={`relative group overflow-hidden rounded-xl ${idx === 0 ? "md:col-span-3 md:row-span-4" : "md:col-span-2 md:row-span-2 md:col-start-4"} ${
-                idx === homeCollection.length - 1 ? "md:row-start-3" : ""
-              } transition duration-300 ease-in-out border dark:border-black hover:border-blue-300`}>
-              {node.images.edges[0] ? (
-                <Image className='relative h-full w-full object-cover transition duration-300 ease-in-out group-hover:scale-105' src={node.images?.edges[0]?.node?.originalSrc} alt={node.images?.edges[0]?.node.altText} width={1080} height={1080} />
-              ) : (
-                <Image src='/placeholder.png' alt='placeholder' width={600} height={600} />
-              )}
-              <div className={`absolute ml-2 p-2 bottom-0 left-0 dark:bg-black rounded-full ${idx === 0 ? "md:mb-[50%]" : "md:mb-10"} mb-4`}>
-                <div className='flex md:gap-2 items-center'>
-                  <p className='text-xs md:text-sm pl-2'>{node.title}</p>
-                  <p className='flex items-center justify-center gap-1 bg-blue-500 rounded-full px-2 py-1 min-w-[80px] md:text-sm'>
-                    {node.priceRange.minVariantPrice.amount} <span className='text-[10px]'>{node.priceRange.minVariantPrice.currencyCode}</span>
-                  </p>
-                </div>
-              </div>
-            </Link>
-          ))}
-      </div>
-      {/* TODO: refactor to component */}
-      <div className='flex flex-wrap flex md:my-20 my-10'>
-        {products &&
-          products.edges.map(({ node }) => (
-            <Link href={`/product/${node.handle}`} key={node.id} className='md:basis-1/3 my-2 px-2'>
-              <div className='relative h-full group rounded-xl overflow-hidden border border-black hover:border-blue-400'>
-                {node.images.edges[0] ? (
-                  <Image
-                    className='w-full h-full relative object-cover transition duration-300 ease-in-out group-hover:scale-105 group'
-                    src={node.images?.edges[0]?.node?.originalSrc}
-                    alt={node.images?.edges[0]?.node.altText}
-                    width={480}
-                    height={480}
-                  />
-                ) : (
-                  <Image className='relative h-full w-full object-cover transition duration-300 ease-in-out group-hover:scale-105' src='/placeholder.png' alt='placeholder' width={480} height={480} />
-                )}
-                <div className='absolute mb-4 mx-2 bottom-0 left-0 dark:bg-black rounded-full'>
-                  <div className='flex items-center gap-2 p-2'>
-                    <p className='text-xs md:text-sm pl-2'>{node.title}</p>
-                    <p className='flex items-center justify-center gap-1 md:text-sm h-full bg-blue-500 px-2 py-1 rounded-full min-w-[80px] grow'>
-                      {node.priceRange.minVariantPrice.amount} <span className='text text-[10px]'>{node.priceRange.minVariantPrice.currencyCode}</span>
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </Link>
-          ))}
-      </div>
-    </main>
+        <HomeCollection item={firstItem} size='full' priority={true} />
+        <HomeCollection item={secondItem} size='half' priority={true} />
+        <HomeCollection item={thirdItem} size='half' />
+      </section>
+      <Suspense>
+        <Carousel />
+      </Suspense>
+    </>
   );
 }

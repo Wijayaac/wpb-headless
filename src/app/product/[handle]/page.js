@@ -1,102 +1,116 @@
-import { AddToCart } from "@/components/cart/add-to-cart";
-import VariantButton from "@/components/ui/variant-button";
-import { shopifyFetch } from "@/lib/shopify";
-import Image from "next/image";
+import { notFound } from "next/navigation";
+import { Suspense } from "react";
+import Link from "next/link";
 
-export async function getProduct(handle) {
-  return shopifyFetch({
-    query: `{
-			product(handle: "${handle}") {
-				id
-				title
-				handle
-				description
-				images(first: 10) {
-					edges {
-						node {
-							originalSrc
-							altText
-						}
-					}
-				}
-				priceRange {
-					minVariantPrice {
-						amount
-						currencyCode
-					}
-				}
-				variants(first: 10) {
-					edges {
-						node {
-							title
-							id
-							availableForSale
-							selectedOptions {
-								name
-								value
-							}
-							price {
-								amount
-								currencyCode
-							}
-						}
-					}
-				}
-			}
-		}
-		`,
-  });
-}
-export default async function Page({ params }) {
-  const {
-    body: {
-      data: { product },
+import { getProduct, getProductRecommendations } from "@/lib/shopify";
+import { HIDDEN_PRODUCT_TAG } from "@/lib/constants";
+import { Gallery } from "@/components/product/gallery";
+import { ProductDescription } from "@/components/product/description";
+import { GridTileImage } from "@/components/grid/tile";
+
+export async function generateMetadata({ params }) {
+  const product = await getProduct(params.handle);
+  if (!product) {
+    return notFound();
+  }
+
+  const { url, width, height, altText: alt } = product.featuredImage || {};
+  const indexable = !product.tags.includes(HIDDEN_PRODUCT_TAG);
+
+  return {
+    title: product.seo.title || product.title,
+    description: product.seo.description || product.description,
+    robots: {
+      index: indexable,
+      follow: indexable,
+      googleBot: {
+        index: indexable,
+        follow: indexable,
+      },
     },
-  } = await getProduct(params.handle);
+    openGraph: url
+      ? {
+          images: [
+            {
+              url,
+              width,
+              height,
+              alt,
+            },
+          ],
+        }
+      : null,
+  };
+}
+
+export default async function ProductPage({ params }) {
+  const product = await getProduct(params.handle);
+
+  if (!product) {
+    return notFound();
+  }
+  const productJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: product.title,
+    description: product.description,
+    image: product.featuredImage?.url,
+    offers: {
+      "@type": "AggregateOffer",
+      availability: product.availableForSale ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+      priceCurrency: product.priceRange.minVariantPrice.currencyCode,
+      highPrice: product.priceRange.maxVariantPrice.amount,
+      lowPrice: product.priceRange.minVariantPrice.amount,
+    },
+  };
 
   return (
-    <main className='flex min-h-screen flex-col items-center justify-between md:px-8 px-4'>
-      {product ? (
-        <div className='md:my-10'>
-          <div className='flex md:flex-row flex-col'>
-            {/* TODO: create gallery */}
-            {/* TODO: convert this into next Image, since we need to create a wrapper for this to work on */}
-            <div className='flex md:basis-2/3 w-full overflow-x-scroll'>
-              {product.images.edges.map((image) => (
-                <img key={image.node?.originalSrc} src={image.node?.originalSrc} alt={image.node?.altText} width={1080} height={1080} />
-              ))}
-            </div>
-            <div className='md:basis-1/3 flex w-full flex-col md:pl-8'>
-              <h1 className='text-3xl font-bold mb-2'>{product.title}</h1>
-              <p className='my-4'>
-                <span className='inline-flex items-center font-medium p-2 bg-blue-400 rounded-full'>
-                  {product.priceRange.minVariantPrice.amount} {product.priceRange.minVariantPrice.currencyCode}
-                </span>
-              </p>
-              {/* TODO: Create variant selector */}
-              {product.variants.edges.length > 1 && (
-                <div className='my-2'>
-                  <p>Stock Type</p>
-                  <div className='flex gap-2 my-2'>
-                    {/* TODO: handle not available stock variant */}
-                    {product.variants &&
-                      product.variants.edges.map((variant) => (
-                        <VariantButton key={variant.node.id} variant={variant}>
-                          {variant.node.title}
-                        </VariantButton>
-                      ))}
-                  </div>
-                </div>
-              )}
-              {/* TODO: add to cart function */}
-              <AddToCart variants={product.variants?.edges} availableForSale={true} />
-              <p className='mt-8'>{product.description}</p>
-            </div>
+    <>
+      <script type='application/ld+json' dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }} />
+      <div className='mx-auto max-w-screen-2xl px-4'>
+        <div className='flex flex-col rounded-lg border border-neutral-200 bg-white p-8 dark:border-neutral-800 dark:bg-black md:p-12 lg:flex-row lg:gap-8'>
+          <div className='w-full h-full basis-full lg:basis-4/6'>
+            <Gallery images={product.images.map((image) => ({ src: image.url, altText: image.altText }))} />
+          </div>
+          <div className='basis-full lg:basis-2/6'>
+            <ProductDescription product={product} />
           </div>
         </div>
-      ) : (
-        <h1>No product found</h1>
-      )}
-    </main>
+        <Suspense>
+          <RelatedProducts id={product.id} />
+        </Suspense>
+      </div>
+    </>
+  );
+}
+
+async function RelatedProducts({ id }) {
+  const relatedProducts = await getProductRecommendations(id);
+
+  if (!relatedProducts.length) return null;
+
+  return (
+    <div className='py-8'>
+      <h2 className='mb-4 text-2xl font-bold'>Related Products</h2>
+      <ul className='flex w-full gap-4 overflow-x-auto pt-1'>
+        {relatedProducts.map((product) => (
+          <li key={product.handle} className='aspect-square w-full flex-none min-[475px]:w-1/2 sm:w-1/3 md:w-1/4 lg:w-1/5'>
+            <Link className='relative h-full w-full' href={`/product/${product.handle}`}>
+              <GridTileImage
+                alt={product.title}
+                label={{
+                  title: product.title,
+                  amount: product.priceRange.maxVariantPrice.amount,
+                  currencyCode: product.priceRange.maxVariantPrice.currencyCode,
+                }}
+                src={product.featuredImage?.url}
+                fill
+                sizes='(min-width: 1024px) 20vw, (min-width: 768px) 25vw, (min-width: 640px) 33vw, (min-width: 475px) 50vw, 100vw'
+              />
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
