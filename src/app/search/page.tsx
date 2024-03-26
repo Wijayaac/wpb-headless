@@ -1,49 +1,40 @@
-import { getCollection, getCollectionProducts } from '@/lib/shopify'
-import { Metadata } from 'next'
-import { notFound } from 'next/navigation'
-
 import Grid from '@/components/grid'
 import ProductGridItems from '@/components/layout/product-grid-items'
 import { defaultSort, sorting } from '@/lib/constants'
+import { getProducts } from '@/lib/shopify'
 
 export const runtime = 'edge'
 
-export async function generateMetadata({
-	params
-}: {
-	params: { collection: string }
-}): Promise<Metadata> {
-	const collection = await getCollection(params.collection)
-
-	if (!collection) return notFound()
-
-	return {
-		title: collection.seo?.title || collection.title,
-		description:
-			collection.seo?.description || collection.description || `${collection.title} products`
-	}
+export const metadata = {
+	title: 'Search',
+	description: 'Search for products in the store.'
 }
 
-export default async function CategoryPage({
-	params,
+export default async function SearchPage({
 	searchParams
 }: {
-	params: { collection: string }
 	searchParams?: { [key: string]: string | string[] | undefined }
 }) {
-	const { sort } = searchParams as { [key: string]: string }
+	const { sort, q: searchValue } = searchParams as { [key: string]: string }
 	const { sortKey, reverse } = sorting.find((item) => item.slug === sort) || defaultSort
-	const products = await getCollectionProducts({ collection: params.collection, sortKey, reverse })
+	const products = await getProducts({ query: searchValue, reverse, sortKey })
+	const resultsText = products.length > 1 ? 'results' : 'result'
 
 	return (
-		<section>
-			{products.length === 0 ? (
-				<p className="py-3 text-lg">{`No products found in this collection`}</p>
-			) : (
+		<>
+			{searchValue ? (
+				<p className="mb-4">
+					{products.length === 0
+						? 'There are no products that match '
+						: `Showing ${products.length} ${resultsText} for `}
+					<span className="font-bold">&quot;{searchValue}&quot;</span>
+				</p>
+			) : null}
+			{products.length > 0 ? (
 				<Grid className="grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
 					<ProductGridItems products={products} />
 				</Grid>
-			)}
-		</section>
+			) : null}
+		</>
 	)
 }
