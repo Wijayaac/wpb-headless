@@ -8,26 +8,47 @@
   --background-end-rgb: 255, 255, 255;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
-  }
-}
+/* @media (prefers-color-scheme: dark) {
+	:root {
+		--foreground-rgb: 255, 255, 255;
+		--background-start-rgb: 0, 0, 0;
+		--background-end-rgb: 0, 0, 0;
+	}
+} */
 
 body {
   color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
+  background: linear-gradient(to bottom,
       transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+      rgb(var(--background-end-rgb))) rgb(var(--background-start-rgb));
 }
 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
   }
+}
+
+
+.normal-ratio {
+  @apply w-full h-full relative overflow-hidden pt-[56.25%];
+}
+
+.square-ratio {
+  @apply w-full h-full relative overflow-hidden pt-[100%];
+}
+
+.img-ratio {
+  @apply object-cover object-center absolute w-full h-full inset-0;
+}
+
+/* Styles */
+.link-outline {
+  @apply relative inline-block;
+}
+
+.link-outline::after {
+  @apply absolute -bottom-2 left-1/2 w-10/12 h-1 bg-black transform -translate-x-1/2;
+  content: '';
+  z-index: -1;
 }

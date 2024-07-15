@@ -68,7 +68,7 @@ export default async function ProductPage({ params }) {
     <>
       <script type='application/ld+json' dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }} />
       <div className='mx-auto max-w-screen-2xl px-4'>
-        <div className='flex flex-col rounded-lg border border-neutral-200 bg-white p-8 dark:border-neutral-800 dark:bg-black md:p-12 lg:flex-row lg:gap-8'>
+        <div className='flex flex-col rounded-lg border border-neutral-200 bg-white p-8 md:p-12 lg:flex-row lg:gap-8'>
           <div className='w-full h-full basis-full lg:basis-4/6'>
             <Gallery images={product.images.map((image) => ({ src: image.url, altText: image.altText }))} />
           </div>
