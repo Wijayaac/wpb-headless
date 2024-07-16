@@ -107,6 +107,7 @@ function HomeProductGrid(collection) {
         {products &&
           products.map((product) => (
             <Link
+              key={product.id}
               className="relative block aspect-square h-full w-full"
               href={`/product/${product.handle}`}
             >

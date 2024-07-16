@@ -1,15 +1,32 @@
-import { HIDDEN_PRODUCT_TAG, SHOPIFY_GRAPHQL_API_ENDPOINT, TAGS } from "@/lib/constants";
+import {
+  HIDDEN_PRODUCT_TAG,
+  SHOPIFY_GRAPHQL_API_ENDPOINT,
+  TAGS,
+} from "@/lib/constants";
 import { isShopifyError } from "@/lib/type-guards";
 import { ensureStartsWith } from "@/lib/utils";
 import { revalidateTag } from "next/cache";
 import { headers } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
-import { addToCartMutation, createCartMutation, editCartItemsMutation, removeFromCartMutation } from "./mutations/cart";
+import {
+  addToCartMutation,
+  createCartMutation,
+  editCartItemsMutation,
+  removeFromCartMutation,
+} from "./mutations/cart";
 import { getCartQuery } from "./queries/cart";
-import { getCollectionProductsQuery, getCollectionQuery, getCollectionsQuery } from "./queries/collection";
+import {
+  getCollectionProductsQuery,
+  getCollectionQuery,
+  getCollectionsQuery,
+} from "./queries/collection";
 import { getMenuQuery } from "./queries/menu";
 import { getPageQuery, getPagesQuery } from "./queries/page";
-import { getProductQuery, getProductRecommendationsQuery, getProductsQuery } from "./queries/product";
+import {
+  getProductQuery,
+  getProductRecommendationsQuery,
+  getProductsQuery,
+} from "./queries/product";
 import {
   Cart,
   Collection,
@@ -37,11 +54,15 @@ import {
   ShopifyUpdateCartOperation,
 } from "./types";
 
-const domain = process.env.SHOPIFY_STORE_DOMAIN ? ensureStartsWith(process.env.SHOPIFY_STORE_DOMAIN, "https://") : "";
+const domain = process.env.SHOPIFY_STORE_DOMAIN
+  ? ensureStartsWith(process.env.SHOPIFY_STORE_DOMAIN, "https://")
+  : "";
 const endpoint = `${domain}${SHOPIFY_GRAPHQL_API_ENDPOINT}`;
 const key = process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN!;
 
-type ExtractVariables<T> = T extends { variables: object } ? T["variables"] : never;
+type ExtractVariables<T> = T extends { variables: object }
+  ? T["variables"]
+  : never;
 
 export async function shopifyFetch<T>({
   cache = "force-cache",
@@ -117,7 +138,9 @@ const reshapeCart = (cart: ShopifyCart): Cart => {
   };
 };
 
-const reshapeCollection = (collection: ShopifyCollection): Collection | undefined => {
+const reshapeCollection = (
+  collection: ShopifyCollection,
+): Collection | undefined => {
   if (!collection) {
     return undefined;
   }
@@ -156,8 +179,14 @@ const reshapeImages = (images: Connection<Image>, productTitle: string) => {
   });
 };
 
-const reshapeProduct = (product: ShopifyProduct, filterHiddenProducts: boolean = true) => {
-  if (!product || (filterHiddenProducts && product.tags.includes(HIDDEN_PRODUCT_TAG))) {
+const reshapeProduct = (
+  product: ShopifyProduct,
+  filterHiddenProducts: boolean = true,
+) => {
+  if (
+    !product ||
+    (filterHiddenProducts && product.tags.includes(HIDDEN_PRODUCT_TAG))
+  ) {
     return undefined;
   }
 
@@ -195,7 +224,10 @@ export async function createCart(): Promise<Cart> {
   return reshapeCart(res.body.data.cartCreate.cart);
 }
 
-export async function addToCart(cartId: string, lines: { merchandiseId: string; quantity: number }[]): Promise<Cart> {
+export async function addToCart(
+  cartId: string,
+  lines: { merchandiseId: string; quantity: number }[],
+): Promise<Cart> {
   const res = await shopifyFetch<ShopifyAddToCartOperation>({
     query: addToCartMutation,
     variables: {
@@ -207,7 +239,10 @@ export async function addToCart(cartId: string, lines: { merchandiseId: string; 
   return reshapeCart(res.body.data.cartLinesAdd.cart);
 }
 
-export async function removeFromCart(cartId: string, lineIds: string[]): Promise<Cart> {
+export async function removeFromCart(
+  cartId: string,
+  lineIds: string[],
+): Promise<Cart> {
   const res = await shopifyFetch<ShopifyRemoveFromCartOperation>({
     query: removeFromCartMutation,
     variables: {
@@ -220,7 +255,10 @@ export async function removeFromCart(cartId: string, lineIds: string[]): Promise
   return reshapeCart(res.body.data.cartLinesRemove.cart);
 }
 
-export async function updateCart(cartId: string, lines: { id: string; merchandiseId: string; quantity: number }[]): Promise<Cart> {
+export async function updateCart(
+  cartId: string,
+  lines: { id: string; merchandiseId: string; quantity: number }[],
+): Promise<Cart> {
   const res = await shopifyFetch<ShopifyUpdateCartOperation>({
     query: editCartItemsMutation,
     variables: {
@@ -249,7 +287,9 @@ export async function getCart(cartId: string): Promise<Cart | undefined> {
   return reshapeCart(res.body.data.cart);
 }
 
-export async function getCollection(handle: string): Promise<Collection | undefined> {
+export async function getCollection(
+  handle: string,
+): Promise<Collection | undefined> {
   const res = await shopifyFetch<ShopifyCollectionOperation>({
     query: getCollectionQuery,
     tags: [TAGS.collections],
@@ -261,7 +301,15 @@ export async function getCollection(handle: string): Promise<Collection | undefi
   return reshapeCollection(res.body.data.collection);
 }
 
-export async function getCollectionProducts({ collection, reverse, sortKey }: { collection: string; reverse?: boolean; sortKey?: string }): Promise<Product[]> {
+export async function getCollectionProducts({
+  collection,
+  reverse,
+  sortKey,
+}: {
+  collection: string;
+  reverse?: boolean;
+  sortKey?: string;
+}): Promise<Product[]> {
   const res = await shopifyFetch<ShopifyCollectionProductsOperation>({
     query: getCollectionProductsQuery,
     tags: [TAGS.collections, TAGS.products],
@@ -277,7 +325,9 @@ export async function getCollectionProducts({ collection, reverse, sortKey }: { 
     return [];
   }
 
-  return reshapeProducts(removeEdgesAndNodes(res.body.data.collection.products));
+  return reshapeProducts(
+    removeEdgesAndNodes(res.body.data.collection.products),
+  );
 }
 
 export async function getCollections(): Promise<Collection[]> {
@@ -301,7 +351,9 @@ export async function getCollections(): Promise<Collection[]> {
     },
     // Filter out the `hidden` collections.
     // Collections that start with `hidden-*` need to be hidden on the search page.
-    ...reshapeCollections(shopifyCollections).filter((collection) => !collection.handle.startsWith("hidden")),
+    ...reshapeCollections(shopifyCollections).filter(
+      (collection) => !collection.handle.startsWith("hidden"),
+    ),
   ];
 
   return collections;
@@ -317,10 +369,28 @@ export async function getMenu(handle: string): Promise<Menu[]> {
   });
 
   return (
-    res.body?.data?.menu?.items.map((item: { title: string; url: string }) => ({
-      title: item.title,
-      path: item.url.replace(domain, "").replace("/collections", "/search").replace("/pages", ""),
-    })) || []
+    res.body?.data?.menu?.items.map(
+      (item: {
+        title: string;
+        url: string;
+        submenu: { title: string; url: string }[];
+      }) => ({
+        title: item.title,
+        path: item.url
+          .replace(domain, "")
+          .replace("/collections", "/search")
+          .replace("/pages", ""),
+        submenu: item.submenu?.map(
+          (subitem: { title: string; url: string }) => ({
+            title: subitem.title,
+            path: subitem.url
+              .replace(domain, "")
+              .replace("/collections", "/search")
+              .replace("/pages", ""),
+          }),
+        ),
+      }),
+    ) || []
   );
 }
 
@@ -353,7 +423,9 @@ export async function getProduct(handle: string): Promise<Product | undefined> {
   return reshapeProduct(res.body.data.product, false);
 }
 
-export async function getProductRecommendations(productId: string): Promise<Product[]> {
+export async function getProductRecommendations(
+  productId: string,
+): Promise<Product[]> {
   const res = await shopifyFetch<ShopifyProductRecommendationsOperation>({
     query: getProductRecommendationsQuery,
     tags: [TAGS.products],
@@ -365,7 +437,15 @@ export async function getProductRecommendations(productId: string): Promise<Prod
   return reshapeProducts(res.body.data.productRecommendations);
 }
 
-export async function getProducts({ query, reverse, sortKey }: { query?: string; reverse?: boolean; sortKey?: string }): Promise<Product[]> {
+export async function getProducts({
+  query,
+  reverse,
+  sortKey,
+}: {
+  query?: string;
+  reverse?: boolean;
+  sortKey?: string;
+}): Promise<Product[]> {
   const res = await shopifyFetch<ShopifyProductsOperation>({
     query: getProductsQuery,
     tags: [TAGS.products],
@@ -383,8 +463,16 @@ export async function getProducts({ query, reverse, sortKey }: { query?: string;
 export async function revalidate(req: NextRequest): Promise<NextResponse> {
   // We always need to respond with a 200 status code to Shopify,
   // otherwise it will continue to retry the request.
-  const collectionWebhooks = ["collections/create", "collections/delete", "collections/update"];
-  const productWebhooks = ["products/create", "products/delete", "products/update"];
+  const collectionWebhooks = [
+    "collections/create",
+    "collections/delete",
+    "collections/update",
+  ];
+  const productWebhooks = [
+    "products/create",
+    "products/delete",
+    "products/update",
+  ];
   const topic = headers().get("x-shopify-topic") || "unknown";
   const secret = req.nextUrl.searchParams.get("secret");
   const isCollectionUpdate = collectionWebhooks.includes(topic);
