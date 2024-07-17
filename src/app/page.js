@@ -56,6 +56,26 @@ function BannerLogo() {
   );
 }
 
+function BannerHero() {
+  return (
+    <section className="relative flex w-full h-full min-h-[400px] md:h-min-[640px] items-center justify-center">
+      <ImagePlaceholder />
+      <div className="bg-black w-full h-full absolute inset-0 opacity-50"></div>
+      <div className="flex flex-col h-full-w-full items-center justify-center text-center gap-2.5 relative z-20 px-8 text-white">
+        <h1 className="h0">Industrial design meets fashion</h1>
+        <p>Atypical leather goods</p>
+        <Link
+          href="/products"
+          title="Product page"
+          className="button button-outline"
+        >
+          Shop Now
+        </Link>
+      </div>
+    </section>
+  );
+}
+
 function FullImage() {
   return (
     <div className="normal-ratio">
@@ -151,6 +171,7 @@ export default async function Home() {
         <HomeCollection item={thirdItem} size="half" />
       </section>
       <FullImage />
+      <BannerHero />
       <HomeProductGrid products={homepageItems} />
       <MediaText />
       <section>
