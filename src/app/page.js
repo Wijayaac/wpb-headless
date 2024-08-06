@@ -93,8 +93,8 @@ function MediaText() {
             <ImagePlaceholder />
           </div>
         </div>
-        <div className="flex flex-col w-full h-full items-center justify-center px-6 gap-4">
-          <p className="text-base">
+        <div className="flex flex-col w-full h-full items-center justify-center px-6 md:px-20 gap-4 border border-black">
+          <p className="text-base text-center">
             Lorem ipsum dolor sit amet consectetur adipisicing elit. Eaque, non?
             Repudiandae accusamus optio dolorum eligendi unde fugiat aliquid
             nostrum ad.

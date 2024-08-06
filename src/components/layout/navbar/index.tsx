@@ -17,7 +17,7 @@ export default async function Navbar() {
       <div className="flex p-1 items-center justify-center text-center shadow-small">
         <p className='body-small font-normal'>Free shipping available on all orders!</p>
       </div>
-      <nav className="relative flex items-center justify-between py-2 px-4 lg:px-6 shadow-small">
+      <nav className="relative flex gap-4 items-center md:flex-col justify-between py-2 px-4 lg:px-6 shadow-small">
         <div className="block flex-none md:hidden">
           <MobileMenu menu={menu} />
         </div>
@@ -29,6 +29,9 @@ export default async function Navbar() {
                 {SITE_NAME}
               </div>
             </Link>
+
+          </div>
+          <div className="hidden justify-center md:flex md:w-1/3">
             {menu.length ? (
               <ul className="hidden gap-6 text-sm md:flex md:items-center">
                 {menu.map((item: Menu) => (
@@ -43,9 +46,6 @@ export default async function Navbar() {
                 ))}
               </ul>
             ) : null}
-          </div>
-          <div className="hidden justify-center md:flex md:w-1/3">
-            <Search />
           </div>
           <div className="flex justify-end md:w-1/3">
             <Suspense fallback={<OpenCart />}>
