@@ -172,7 +172,9 @@ export default async function Home() {
       </section>
       <FullImage />
       <BannerHero />
-      <HomeProductGrid products={homepageItems} />
+      <Suspense>
+        <HomeProductGrid products={homepageItems} />
+      </Suspense>
       <MediaText />
       <section>
         <Suspense>

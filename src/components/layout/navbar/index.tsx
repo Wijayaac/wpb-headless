@@ -19,7 +19,9 @@ export default async function Navbar() {
       </div>
       <nav className="relative flex gap-4 items-center md:flex-col justify-between py-2 px-4 lg:px-6 shadow-small">
         <div className="block flex-none md:hidden">
-          <MobileMenu menu={menu} />
+          <Suspense>
+            <MobileMenu menu={menu} />
+          </Suspense>
         </div>
         <div className="flex w-full items-center">
           <div className="flex w-full md:w-1/3">
