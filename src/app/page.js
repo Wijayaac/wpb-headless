@@ -4,6 +4,7 @@ import { getCollectionProducts } from "@/lib/shopify";
 import Link from "next/link";
 import { Suspense } from "react";
 import ImagePlaceholder from "@/components/image-placeholder";
+import ResponsiveImage from "@/components/responsive-image";
 
 function HomeCollection({ item, size, priority }) {
   return (
@@ -44,13 +45,13 @@ function BannerLogo() {
   return (
     <section className="container py-10">
       <div className="flex h-full items-center justify-center gap-4">
-        <p className="text-3xl">Store</p>
+        <p className="text-3xl">White</p>
         <div className="w-[150px]">
           <div className="square-ratio">
-            <ImagePlaceholder />
+            <ResponsiveImage src="/logo.png" alt="White Peacock Logo" />
           </div>
         </div>
-        <p className="text-3xl">name</p>
+        <p className="text-3xl">Peacock</p>
       </div>
     </section>
   );
@@ -76,30 +77,26 @@ function BannerHero() {
   );
 }
 
-function FullImage() {
+function FullImage({ src, alt }) {
   return (
     <div className="normal-ratio">
-      <ImagePlaceholder />
+      <ResponsiveImage src={src} alt={alt} />
     </div>
   );
 }
 
-function MediaText() {
+function MediaText({ src, alt, link, children }) {
   return (
     <section className="container py-10 md:py-20">
       <div className="grid md:grid-cols-3 grid-cols-2">
         <div className="md:col-span-2">
           <div className="square-ratio">
-            <ImagePlaceholder />
+            <ResponsiveImage src={src} alt={alt} />
           </div>
         </div>
         <div className="flex flex-col w-full h-full items-center justify-center px-6 md:px-20 gap-4 border border-black">
-          <p className="text-base text-center">
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Eaque, non?
-            Repudiandae accusamus optio dolorum eligendi unde fugiat aliquid
-            nostrum ad.
-          </p>
-          <Link href="/products" title="Product page" className="link-outline">
+          <p className="text-base text-center">{children}</p>
+          <Link href={link} title="Product page" className="link-outline">
             Shop Now
           </Link>
         </div>
@@ -114,14 +111,7 @@ function HomeProductGrid(collection) {
   return (
     <section className="container py-10 md:py-20">
       <div className="text-center mb-10">
-        <h2 className="font-bold text-2xl">
-          Lorem ipsum dolor sit amet. Lorem, ipsum.
-        </h2>
-        <p>
-          Lorem ipsum dolor sit amet consectetur, adipisicing elit. Nihil
-          tempora pariatur possimus quaerat nisi provident incidunt temporibus
-          odio.
-        </p>
+        <h2 className="font-bold text-2xl">Featured Collection</h2>
       </div>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
         {products &&
@@ -164,18 +154,20 @@ export default async function Home() {
   return (
     <>
       <BannerLogo />
+      <FullImage src="/full-img-1.jpg" alt="Banner 1" />
       <section className="mx-auto grid max-w-screen-2xl gap-4 px-4 pb-4 md:grid-cols-6 md:grid-rows-2">
         {/* TODO: sale product collection refactor */}
         <HomeCollection item={firstItem} size="full" priority={true} />
         <HomeCollection item={secondItem} size="half" priority={true} />
         <HomeCollection item={thirdItem} size="half" />
       </section>
-      <FullImage />
-      <BannerHero />
+      <MediaText src="/text-media-1.jpg" alt="Text media 1" link="/shirt">
+        Pair text with an image to focus on your chosen product, collection, or
+        blog post. Add details on availability, style, or even provide a review.
+      </MediaText>
       <Suspense>
         <HomeProductGrid products={homepageItems} />
       </Suspense>
-      <MediaText />
       <section>
         <Suspense>
           <Carousel />
