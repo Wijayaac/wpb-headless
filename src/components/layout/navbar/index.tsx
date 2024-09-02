@@ -7,6 +7,7 @@ import Link from 'next/link'
 import { Suspense } from 'react'
 import MobileMenu from '@/components/layout/navbar/mobile-menu'
 import Search from '@/components/layout/navbar/search'
+import ResponsiveImage from '@/components/responsive-image'
 const { SITE_NAME } = process.env
 
 export default async function Navbar() {
@@ -26,9 +27,14 @@ export default async function Navbar() {
         <div className="flex w-full items-center">
           <div className="flex w-full md:w-1/4">
             <Link href="/" className="mr-2 flex w-full items-center justify-center md:w-auto lg:mr-6">
-              <LogoSquare />
-              <div className="ml-2 flex-none text-sm font-medium uppercase md:hidden lg:block">
-                {SITE_NAME}
+              <div className="w-[50px]">
+                <div className="square-ratio">
+                  <ResponsiveImage
+                    src="/logo.png"
+                    isContain={true}
+                    alt="White Peacock Logo"
+                  />
+                </div>
               </div>
             </Link>
 

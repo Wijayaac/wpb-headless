@@ -17,6 +17,7 @@ module.exports = {
         light: "#D0D0D0",
         "accent-1": "#000000",
         "accent-2": "#3752B2",
+        pink: "#ffbdf7",
         body: "#121212",
         "sub-text": "#121212BF",
         "invert-text": "#FFFFFF",

@@ -1,5 +1,5 @@
 import Navbar from '@/components/layout/navbar'
-import { Inter } from "next/font/google"
+import { Josefin_Sans } from "next/font/google"
 import { ensureStartsWith } from '@/lib/utils'
 import { ReactNode, Suspense } from 'react'
 import './globals.css'
@@ -12,7 +12,10 @@ const baseUrl = process.env.NEXT_PUBLIC_VERCEL_URL
 const twitterCreator = TWITTER_CREATOR ? ensureStartsWith(TWITTER_CREATOR, '@') : undefined
 const twitterSite = TWITTER_SITE ? ensureStartsWith(TWITTER_SITE, 'https://') : undefined
 
-const inter = Inter({ subsets: ["latin"] })
+const josenfin = Josefin_Sans({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"]
+})
 
 export const metadata = {
   metadataBase: new URL(baseUrl),
@@ -36,7 +39,7 @@ export const metadata = {
 
 export default async function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" className={inter.className}>
+    <html lang="en" className={josenfin.className}>
       <body className="bg-neutral-50 text-black selection:bg-teal-300">
         <Navbar />
         <Suspense>

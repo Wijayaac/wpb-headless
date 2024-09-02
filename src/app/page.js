@@ -48,7 +48,11 @@ function BannerLogo() {
         <p className="text-3xl">White</p>
         <div className="w-[150px]">
           <div className="square-ratio">
-            <ResponsiveImage src="/logo.png" alt="White Peacock Logo" />
+            <ResponsiveImage
+              src="/logo.png"
+              isContain={true}
+              alt="White Peacock Logo"
+            />
           </div>
         </div>
         <p className="text-3xl">Peacock</p>
@@ -168,11 +172,6 @@ export default async function Home() {
       <Suspense>
         <HomeProductGrid products={homepageItems} />
       </Suspense>
-      <section>
-        <Suspense>
-          <Carousel />
-        </Suspense>
-      </section>
     </>
   );
 }
