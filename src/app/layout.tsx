@@ -1,5 +1,5 @@
 import Navbar from '@/components/layout/navbar'
-import { Josefin_Sans } from "next/font/google"
+import { Playfair_Display, Open_Sans } from "next/font/google"
 import { ensureStartsWith } from '@/lib/utils'
 import { ReactNode, Suspense } from 'react'
 import './globals.css'
@@ -12,9 +12,16 @@ const baseUrl = process.env.NEXT_PUBLIC_VERCEL_URL
 const twitterCreator = TWITTER_CREATOR ? ensureStartsWith(TWITTER_CREATOR, '@') : undefined
 const twitterSite = TWITTER_SITE ? ensureStartsWith(TWITTER_SITE, 'https://') : undefined
 
-const josenfin = Josefin_Sans({
+const open = Open_Sans({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"]
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-open"
+})
+
+const playfair = Playfair_Display({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-playfair"
 })
 
 export const metadata = {
@@ -39,7 +46,7 @@ export const metadata = {
 
 export default async function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" className={josenfin.className}>
+    <html lang="en" className={`${open.variable} ${playfair.variable}`}>
       <body className="bg-neutral-50 text-black selection:bg-teal-300">
         <Navbar />
         <Suspense>

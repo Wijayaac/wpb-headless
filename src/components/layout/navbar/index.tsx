@@ -14,9 +14,9 @@ export default async function Navbar() {
   const menu = await getMenu('main-menu')
 
   return (
-    <div className="sticky top-0 z-10 bg-white">
+    <div className="sticky top-0 z-[9999] bg-white">
       <div className="flex p-1 items-center justify-center text-center shadow-small">
-        <p className='body-small font-normal'>Free shipping available on all orders!</p>
+        <p className='body-small font-playfair'>Free shipping available on all orders!</p>
       </div>
       <nav className="relative flex gap-4 items-center md:flex-col justify-between py-2 px-4 lg:px-6 shadow-small">
         <div className="block flex-none md:hidden">
@@ -46,7 +46,7 @@ export default async function Navbar() {
                   <li key={item.title}>
                     <Link
                       href={item.path}
-                      className="text-neutral-500 underline-offset-4 hover:text-black hover:underline"
+                      className="text-neutral-500 font-playfair underline-offset-4 hover:text-black hover:underline"
                     >
                       {item.title}
                     </Link>

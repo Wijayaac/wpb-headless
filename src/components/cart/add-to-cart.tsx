@@ -8,6 +8,7 @@ import { ProductVariant } from '@/lib/shopify/types'
 import { useSearchParams } from 'next/navigation'
 import { useFormState, useFormStatus } from 'react-dom'
 
+// TODO: add to cart function change to local storage cart, instead of Shopify cart, so we can send an email based order instead of Shopify checkout
 function SubmitButton({
 	availableForSale,
 	selectedVariantId

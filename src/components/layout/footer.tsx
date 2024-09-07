@@ -1,8 +1,6 @@
 import Link from 'next/link'
-import { Suspense } from 'react'
 
 import FooterMenu from '@/components/layout/footer-menu'
-import LogoSquare from '@/components/logo-square'
 import { getMenu } from '@/lib/shopify'
 import ResponsiveImage from '../responsive-image'
 

@@ -18,10 +18,19 @@
 
 body {
   color: rgb(var(--foreground-rgb));
-  font-family: 'Lora', serif;
+  font-family: var(--font-playfair);
+  letter-spacing: 0.02em;
   /* background: linear-gradient(to bottom,
       transparent,
       rgb(var(--background-end-rgb))) rgb(var(--background-start-rgb)); */
+}
+
+p,
+h3,
+h4,
+a {
+  font-family: var(--font-open);
+  letter-spacing: 0.04em;
 }
 
 @layer utilities {
@@ -138,6 +147,14 @@ body {
 
   a {
     @apply cursor-pointer;
+  }
+
+  .font-open {
+    font-family: var(--font-open);
+  }
+
+  .font-playfair {
+    font-family: var(--font-playfair);
   }
 }
 

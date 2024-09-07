@@ -1,12 +1,13 @@
-import { Carousel } from "@/components/carousel";
-import { GridTileImage } from "@/components/grid/tile";
-import { getCollectionProducts } from "@/lib/shopify";
-import Link from "next/link";
-import { Suspense } from "react";
-import ImagePlaceholder from "@/components/image-placeholder";
-import ResponsiveImage from "@/components/responsive-image";
+import { GridTileImage } from "@/components/grid/tile"
+import { getCollectionProducts } from "@/lib/shopify"
+import Link from "next/link"
+import { Suspense } from "react"
+import ResponsiveImage from "@/components/responsive-image"
+
+import type { Product } from "@/lib/shopify/types"
 
 function HomeCollection({ item, size, priority }) {
+
   return (
     <div
       className={
@@ -30,22 +31,22 @@ function HomeCollection({ item, size, priority }) {
               : "(min-width: 768px) 33vw, 100vw"
           }
           label={{
-            position: size === "full" ? "center" : "top",
+            position: size === "full" ? "center" : "bottom",
             title: item.title,
             amount: item.priceRange.maxVariantPrice.amount,
-            currency: item.priceRange.maxVariantPrice.currencyCode,
+            currencyCode: item.priceRange.maxVariantPrice.currencyCode,
           }}
         />
       </Link>
     </div>
-  );
+  )
 }
 
 function BannerLogo() {
   return (
     <section className="container py-10">
       <div className="flex h-full items-center justify-center gap-4">
-        <p className="text-3xl">White</p>
+        <p className="text-3xl font-playfair">White</p>
         <div className="w-[150px]">
           <div className="square-ratio">
             <ResponsiveImage
@@ -55,30 +56,10 @@ function BannerLogo() {
             />
           </div>
         </div>
-        <p className="text-3xl">Peacock</p>
+        <p className="text-3xl font-playfair">Peacock</p>
       </div>
     </section>
-  );
-}
-
-function BannerHero() {
-  return (
-    <section className="relative flex w-full h-full min-h-[400px] md:h-min-[640px] items-center justify-center">
-      <ImagePlaceholder />
-      <div className="bg-black w-full h-full absolute inset-0 opacity-50"></div>
-      <div className="flex flex-col h-full-w-full items-center justify-center text-center gap-2.5 relative z-20 px-8 text-white">
-        <h1 className="h0">Industrial design meets fashion</h1>
-        <p>Atypical leather goods</p>
-        <Link
-          href="/products"
-          title="Product page"
-          className="button button-outline"
-        >
-          Shop Now
-        </Link>
-      </div>
-    </section>
-  );
+  )
 }
 
 function FullImage({ src, alt }) {
@@ -86,7 +67,7 @@ function FullImage({ src, alt }) {
     <div className="normal-ratio">
       <ResponsiveImage src={src} alt={alt} />
     </div>
-  );
+  )
 }
 
 function MediaText({ src, alt, link, children }) {
@@ -106,11 +87,11 @@ function MediaText({ src, alt, link, children }) {
         </div>
       </div>
     </section>
-  );
+  )
 }
 
-function HomeProductGrid(collection) {
-  const { products } = collection;
+function HomeProductGrid(collection: { products: Product[] }) {
+  const { products } = collection
 
   return (
     <section className="container py-10 md:py-20">
@@ -119,7 +100,7 @@ function HomeProductGrid(collection) {
       </div>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
         {products &&
-          products.map((product) => (
+          products.map((product: Product) => (
             <Link
               key={product.id}
               className="relative block aspect-square h-full w-full"
@@ -131,39 +112,38 @@ function HomeProductGrid(collection) {
                 alt={product.title}
                 sizes="(min-width: 768px) 33vw, 100vw"
                 label={{
-                  position: "top",
+                  position: "bottom",
                   title: product.title,
                   amount: product.priceRange.maxVariantPrice.amount,
-                  currency: product.priceRange.maxVariantPrice.currencyCode,
+                  currencyCode: product.priceRange.maxVariantPrice.currencyCode,
                 }}
               />
             </Link>
           ))}
       </div>
     </section>
-  );
+  )
 }
 
 export default async function Home() {
   const homepageItems = await getCollectionProducts({
     collection: "frontpage",
-  });
+  })
 
   if (!homepageItems[0] || !homepageItems[1] || !homepageItems[2]) {
-    return null;
+    return null
   }
 
-  const [firstItem, secondItem, thirdItem] = homepageItems;
+  const [firstItem, secondItem, thirdItem] = homepageItems
 
   return (
     <>
       <BannerLogo />
       <FullImage src="/full-img-1.jpg" alt="Banner 1" />
       <section className="mx-auto grid max-w-screen-2xl gap-4 px-4 pb-4 md:grid-cols-6 md:grid-rows-2">
-        {/* TODO: sale product collection refactor */}
         <HomeCollection item={firstItem} size="full" priority={true} />
         <HomeCollection item={secondItem} size="half" priority={true} />
-        <HomeCollection item={thirdItem} size="half" />
+        <HomeCollection item={thirdItem} size="half" priority={false} />
       </section>
       <MediaText src="/text-media-1.jpg" alt="Text media 1" link="/shirt">
         Pair text with an image to focus on your chosen product, collection, or
@@ -173,5 +153,5 @@ export default async function Home() {
         <HomeProductGrid products={homepageItems} />
       </Suspense>
     </>
-  );
+  )
 }

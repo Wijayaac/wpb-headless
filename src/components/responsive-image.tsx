@@ -1,5 +1,5 @@
 import Image from 'next/image'
-export default function ResponsiveImage({ isContain, src, alt = '' }) {
+export default function ResponsiveImage({ isContain = false, src, alt = '' }) {
   return (
     <Image
       className={`img-ratio ${isContain ? 'object-contain' : 'object-cover'}`}
