@@ -1,8 +1,7 @@
 'use client'
 
 import Price from '@/components/price'
-import { Cart } from '@/lib/shopify/types'
-
+import { Cart, Product } from '@/lib/shopify/types'
 import { Formik, Form, Field, ErrorMessage } from 'formik'
 import * as Yup from 'yup'
 
@@ -18,13 +17,18 @@ const australianStates = [
   { value: 'NT', label: 'Northern Territory' },
 ]
 
-export default function Checkout({ cart }: { cart: Cart | undefined }) {
+export default function ProductInquiry({ cart }: { cart: Cart | undefined }) {
+  if (!cart) {
+    return null
+  }
+
   const initialValues = {
     email: '',
     name: '',
     address: '',
     state: '',
     zip: '',
+    message: '',
   }
 
   const validationSchema = Yup.object({
@@ -35,6 +39,7 @@ export default function Checkout({ cart }: { cart: Cart | undefined }) {
       .oneOf(australianStates.map(state => state.value).slice(1), 'Please select a valid state')
       .required('Required'),
     zip: Yup.string().required('Required'),
+    message: Yup.string(),
   })
 
   const handleSubmit = (values: typeof initialValues) => {
@@ -46,7 +51,14 @@ export default function Checkout({ cart }: { cart: Cart | undefined }) {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(values),
+      body: JSON.stringify({
+        ...values,
+        products: cart.lines.map(item => ({
+          title: item.merchandise.product.title,
+          price: item.cost.totalAmount.amount,
+        })),
+        estimatedTotal: cart.cost.totalAmount.amount,
+      }),
     })
   }
 
@@ -127,41 +139,49 @@ export default function Checkout({ cart }: { cart: Cart | undefined }) {
               <ErrorMessage name="zip" component="div" className="text-red-500 text-sm mt-1" />
             </div>
           </div>
-          {cart && cart.lines.length > 0 && (
-            <div className="mt-6">
-              <h3 className="text-lg font-medium text-gray-900">Order Summary</h3>
-              <ul className="mt-2 divide-y divide-gray-200">
-                {cart.lines.map((item, index) => (
-                  <li key={index} className="flex py-2">
-                    <span className="flex-1">{item.merchandise.product.title}</span>
-                    <span className="ml-4">
-                      <Price
-                        amount={item.cost.totalAmount.amount}
-                        currencyCode={item.cost.totalAmount.currencyCode}
-                      />
-                    </span>
-                  </li>
-                ))}
-              </ul>
-              <div className="mb-3 flex items-center justify-between border-b border-neutral-200 pb-1 pt-1">
-                <p>Shipping</p>
-                <p className="text-right">Calculated at payment</p>
-              </div>
-              <div className="mt-4 flex justify-between">
-                <span className="text-base font-medium text-gray-900">Total</span>
-                <Price
-                  className="text-base font-medium text-gray-900"
-                  amount={cart.cost.totalAmount.amount}
-                  currencyCode={cart.cost.totalAmount.currencyCode}
-                />
-              </div>
+          <div>
+            <label htmlFor="message" className="block text-sm font-medium text-gray-700">
+              Message (Optional)
+            </label>
+            <Field
+              as="textarea"
+              id="message"
+              name="message"
+              rows={4}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            />
+            <ErrorMessage name="message" component="div" className="text-red-500 text-sm mt-1" />
+          </div>
+
+          <div className="mt-6">
+            <h3 className="text-lg font-medium text-gray-900">Products of Interest</h3>
+            <ul className="mt-2 divide-y divide-gray-200">
+              {cart.lines.map((item, index) => (
+                <li key={index} className="flex py-2">
+                  <span className="flex-1">{item.merchandise.product.title}</span>
+                  <span className="ml-4">
+                    <Price
+                      amount={item.cost.totalAmount.amount}
+                      currencyCode={item.cost.totalAmount.currencyCode}
+                    />
+                  </span>
+                </li>
+              ))}
+            </ul>
+            <div className="mt-4 flex justify-between">
+              <span className="text-base font-medium text-gray-900">Estimated Total</span>
+              <Price
+                className="text-base font-medium text-gray-900"
+                amount={cart.cost.totalAmount.amount}
+                currencyCode={cart.cost.totalAmount.currencyCode}
+              />
             </div>
-          )}
+          </div>
           <button
             type="submit"
             className="mt-6 w-full rounded-md border border-transparent bg-blue-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
           >
-            Proceed to Payment
+            Submit Inquiry
           </button>
         </Form>
       </Formik>
