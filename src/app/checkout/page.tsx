@@ -34,11 +34,11 @@ export default async function CardPage() {
 
   return (
     <section className="mx-auto max-w-screen-2xl px-4 py-10 lg:px-10 lg:py-20">
-      <div className="flex flex-row gap-10">
-        <div className="flex-auto w-1/3">
+      <div className="flex flex-col md:flex-row gap-4 md:gap-10">
+        <div className="flex-auto w-full md:w-1/3">
           <CartList cart={cart} />
         </div>
-        <div className="flex-auto w-1/2">
+        <div className="flex-auto w-full md:w-1/2">
           <Checkout cart={cart} />
         </div>
       </div>

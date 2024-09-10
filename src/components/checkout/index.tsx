@@ -3,6 +3,7 @@
 import Price from '@/components/price'
 import { Cart, Product } from '@/lib/shopify/types'
 import { Formik, Form, Field, ErrorMessage } from 'formik'
+import { useRouter } from 'next/navigation'
 import * as Yup from 'yup'
 
 const australianStates = [
@@ -21,6 +22,8 @@ export default function ProductInquiry({ cart }: { cart: Cart | undefined }) {
   if (!cart) {
     return null
   }
+
+  const router = useRouter()
 
   const initialValues = {
     email: '',
@@ -43,8 +46,6 @@ export default function ProductInquiry({ cart }: { cart: Cart | undefined }) {
   })
 
   const handleSubmit = (values: typeof initialValues) => {
-    // Handle form submission
-    console.log(values)
     // call api to send email
     fetch('/api/send', {
       method: 'POST',
@@ -60,6 +61,12 @@ export default function ProductInquiry({ cart }: { cart: Cart | undefined }) {
         estimatedTotal: cart.cost.totalAmount.amount,
       }),
     })
+    // redirect to thank you page
+    router.push('/thank-you')
+
+    // clear the cookies using document.cookie
+    document.cookie = 'cartId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;'
+
   }
 
   return (
@@ -78,7 +85,7 @@ export default function ProductInquiry({ cart }: { cart: Cart | undefined }) {
               type="email"
               id="email"
               name="email"
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              className="field-input"
             />
             <ErrorMessage name="email" component="div" className="text-red-500 text-sm mt-1" />
           </div>
@@ -90,7 +97,7 @@ export default function ProductInquiry({ cart }: { cart: Cart | undefined }) {
               type="text"
               id="name"
               name="name"
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              className="field-input"
             />
             <ErrorMessage name="name" component="div" className="text-red-500 text-sm mt-1" />
           </div>
@@ -103,7 +110,7 @@ export default function ProductInquiry({ cart }: { cart: Cart | undefined }) {
               id="address"
               name="address"
               required
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              className="field-input"
             />
             <ErrorMessage name="address" component="div" className="text-red-500 text-sm mt-1" />
           </div>
@@ -116,7 +123,7 @@ export default function ProductInquiry({ cart }: { cart: Cart | undefined }) {
                 as="select"
                 id="state"
                 name="state"
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                className="field-input"
               >
                 {australianStates.map((state) => (
                   <option key={state.value} value={state.value}>
@@ -134,7 +141,7 @@ export default function ProductInquiry({ cart }: { cart: Cart | undefined }) {
                 type="text"
                 id="zip"
                 name="zip"
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                className="field-input"
               />
               <ErrorMessage name="zip" component="div" className="text-red-500 text-sm mt-1" />
             </div>
@@ -148,7 +155,7 @@ export default function ProductInquiry({ cart }: { cart: Cart | undefined }) {
               id="message"
               name="message"
               rows={4}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              className="field-input"
             />
             <ErrorMessage name="message" component="div" className="text-red-500 text-sm mt-1" />
           </div>
