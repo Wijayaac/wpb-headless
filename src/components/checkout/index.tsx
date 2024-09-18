@@ -1,9 +1,12 @@
 'use client'
 
 import Price from '@/components/price'
-import { Cart, Product } from '@/lib/shopify/types'
-import { Formik, Form, Field, ErrorMessage } from 'formik'
+import { Cart } from '@/lib/shopify/types'
+import { Formik, Form, Field, ErrorMessage, FormikProps } from 'formik'
 import { useRouter } from 'next/navigation'
+import Script from 'next/script'
+import { FormEvent, FormEventHandler, useRef, useState } from 'react'
+import { Turnstile } from "@marsidev/react-turnstile"
 import * as Yup from 'yup'
 
 const australianStates = [
@@ -19,11 +22,18 @@ const australianStates = [
 ]
 
 export default function ProductInquiry({ cart }: { cart: Cart | undefined }) {
+  const [error, setError] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
+  const router = useRouter()
+  const formRef = useRef<HTMLFormElement>(null)
+  const [turnstileStatus, setTurnstileStatus] = useState<
+    "success" | "error" | "expired" | "required"
+  >("required")
+  const [turnstileToken, setTurnstileToken] = useState('')
+
   if (!cart) {
     return null
   }
-
-  const router = useRouter()
 
   const initialValues = {
     email: '',
@@ -45,27 +55,48 @@ export default function ProductInquiry({ cart }: { cart: Cart | undefined }) {
     message: Yup.string(),
   })
 
-  const handleSubmit = (values: typeof initialValues) => {
+  const handleSubmit = async (values: typeof initialValues) => {
     // call api to send email
-    fetch('/api/send', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        ...values,
-        products: cart.lines.map(item => ({
-          title: item.merchandise.product.title,
-          price: item.cost.totalAmount.amount,
-        })),
-        estimatedTotal: cart.cost.totalAmount.amount,
-      }),
-    })
-    // redirect to thank you page
-    router.push('/thank-you')
+    setError(null)
+    setIsLoading(true)
 
-    // clear the cookies using document.cookie
-    document.cookie = 'cartId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;'
+    if (turnstileStatus !== "success") {
+      setError("Please verify you are not a robot")
+      setIsLoading(false)
+      return
+    }
+
+
+    try {
+      const response = await fetch('/api/send', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...values,
+          token: turnstileToken,
+          products: cart.lines.map(item => ({
+            title: item.merchandise.product.title,
+            price: item.cost.totalAmount.amount,
+          })),
+          estimatedTotal: cart.cost.totalAmount.amount,
+        }),
+      })
+      if (response.ok) {
+        // redirect to thank you page
+        router.push('/thank-you')
+        document.cookie = 'cartId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;'
+      } else {
+        setError("An error occurred. Please try again.")
+      }
+      // clear the cookies using document.cookie
+    } catch (error) {
+      setError('An error occurred. Please try again later.')
+
+    } finally {
+      setIsLoading(false)
+    }
 
   }
 
@@ -184,6 +215,17 @@ export default function ProductInquiry({ cart }: { cart: Cart | undefined }) {
               />
             </div>
           </div>
+          <Turnstile
+            siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
+            onError={() => setTurnstileStatus("error")}
+            onExpire={() => setTurnstileStatus("expired")}
+            onSuccess={(e) => {
+              setTurnstileStatus("success")
+              setError(null)
+              setTurnstileToken(e)
+            }}
+          />
+          <div className="cf-turnstile" data-sitekey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY} data-callback="javascriptCallback"></div>
           <button
             type="submit"
             className="mt-6 w-full rounded-md border border-transparent bg-blue-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
